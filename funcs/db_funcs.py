@@ -1,6 +1,8 @@
 import os
 import psycopg2
 import hashlib
+import os
+import psycopg2
 
 # Function to make md5 hash
 def make_md5_hash(s):
@@ -9,21 +11,13 @@ def make_md5_hash(s):
 # Function to get connection and cursor to database
 def get_conn_cur():
 
-    # Get database credentials
-    db_cred = {}
-    db_cred['ip'] = os.getenv('DB_IP')
-    db_cred['db'] = os.getenv('DB_NAME')
-    db_cred['user'] = os.getenv('DB_USER')
-    db_cred['password'] = os.getenv('DB_PW')
-       
-
-   # print(db_cred)
     # Connect to database
     conn = psycopg2.connect(
-        host=db_cred['ip'],
-        database=db_cred['db'],
-        user=db_cred['user'],
-        password=db_cred['password']
+        host=os.getenv('DB_IP'),
+        database=os.getenv('DB_NAME'),
+        user=os.getenv('DB_USER'),
+        password=os.getenv('DB_PW'),
+        port=os.getenv('DB_PORT')
     )
     cur = conn.cursor()
 
