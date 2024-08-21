@@ -42,7 +42,6 @@ for mdl in models:
 # Get output from response
         output = response["message"]["content"]
 
-
 # Make database entry for current output
         make_output_db_entry(d["project"],output,pool_id,mdl)
 

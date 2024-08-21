@@ -17,7 +17,7 @@ def get_conn_cur():
     db_cred['password'] = os.getenv('DB_PW')
        
 
-    print(db_cred)
+   # print(db_cred)
     # Connect to database
     conn = psycopg2.connect(
         host=db_cred['ip'],
