@@ -52,13 +52,34 @@ def make_output_db_entry(project,output,pool_id,mdl):
     # Get database connection and cursor 
     conn,cur = get_conn_cur()
 
-    # Format query for insertion
-    q = f"""INSERT INTO {project} (model, output, pool_id,last_modified) VALUES (%s, %s, %s,now())"""
+    # Format query for insertion and returning sim_id
+    q = f"""
+    INSERT INTO {project} (model, output, pool_id,last_modified)
+    VALUES (%s, %s, %s,now())
+    RETURNING sim_id
+    """
     
-    # Execute query
     cur.execute(q, (mdl,output,pool_id))
-    
+
+    # Get sim_id
+    sim_id = cur.fetchone()[0]
     conn.commit()
     cur.close()
     conn.close()
-    return None
+
+
+# Function to update database entry for sim_id for extracted values in dict d
+def make_params_db_entry(project, sim_id, param_values):
+    # Get database connection and cursor
+    conn, cur = get_conn_cur()
+    
+    # Prepare query and execute
+    placeholders = ', '.join([f"{k} = %s" for k in param_values])
+    query = f"UPDATE {project} SET {placeholders}, last_modified = now() WHERE sim_id = %s"
+    cur.execute(query, (*param_values.values(), sim_id))
+    
+    # Commit and close
+    conn.commit()
+    cur.close()
+    conn.close()
+
