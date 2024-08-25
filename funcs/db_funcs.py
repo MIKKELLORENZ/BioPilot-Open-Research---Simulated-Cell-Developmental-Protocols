@@ -66,6 +66,7 @@ def make_output_db_entry(project,output,pool_id,mdl):
     conn.commit()
     cur.close()
     conn.close()
+    return sim_id
 
 
 # Function to update database entry for sim_id for extracted values in dict d

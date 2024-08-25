@@ -1,4 +1,4 @@
-import os,ast, json
+import os,re,ast, json
 
 # Get the directory of the script
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -32,7 +32,7 @@ no_protocols_per_model = 10000
 models = ['llama3.1:8b', 'gemma2', 'mistral-nemo']
 
 # List which environmental parameters to extract
-env_parameters = ["temperature", "ph", "dissolved_oxygen", "rpm/impeller speed"]
+env_parameters = ["temp", "ph", "dissolved_oxygen", "rpm"]
 
 # Format prompt
 prompt = prompt.replace("%no_of_days", str(no_of_days))
@@ -52,6 +52,7 @@ print("Starting protocol generation for", d["product"], "with prompt", d["prompt
 # Main loop to generate protocols
 for mdl in models:
     for i in range(no_protocols_per_model):
+        print("_________________________________________________")
         print("Generating protocol", i+1, "using model", mdl)
         response = client.chat(model=mdl, messages=[
         {'role': 'user',
@@ -62,49 +63,56 @@ for mdl in models:
 # Get output from response
         output = response["message"]["content"]
 
+        print("Response is:\n", output)
 # Make database entry for current output
         sim_id = make_output_db_entry(d["project"],output,pool_id,mdl)
+        print("Sim_id is:", sim_id,"\n")
 
 # Dict for storing extracted values
         param_values = {}
 
 # Perform value extraction
+        formatted_output = output.replace("C","").replace("°","").replace("]","").replace("[","").replace("%","")
         for param in env_parameters:
-                print("Parameter is:", param)
-                extraction_prompt = placeholder_param_extraction_prompt.replace("%param", param)
-                extraction_prompt = extraction_prompt.replace("%val_example", value_examples[param])
-                extraction_prompt = extraction_prompt.replace("%output", output)
-                extraction_prompt = extraction_prompt.replace("%no_of_days", str(no_of_days))
+                print("\n Parameter is:", param)
+                extraction = re_extraction(param,formatted_output)
+                
+                # extraction_prompt = placeholder_param_extraction_prompt.replace("%param", param)
+                # extraction_prompt = extraction_prompt.replace("%val_example", value_examples[param])
+                # extraction_prompt = extraction_prompt.replace("%output", output)
+                # extraction_prompt = extraction_prompt.replace("%no_of_days", str(no_of_days))
+                # extraction_prompt = extraction_prompt.replace("%no_of_days_plus_1", str(no_of_days+1))
 
-                print("Extraction prompt is...")
-                print(extraction_prompt)
+                # extraction_response = client.chat(model=mdl, messages=[
+                # {'role': 'user',
+                # 'content': f'{extraction_prompt}'}])
+                
+                # print("Extraciton response is:", extraction_response["message"]["content"])
+                # print("FORMATTED RESULT")
+                # try:
+                        
 
-                extraction_response = client.chat(model=mdl, messages=[
-                {'role': 'user',
-                'content': f'{extraction_prompt}'}])
+                #         pre_formatted = [x.strip() for x in extraction_response["message"]["content"].replace("%","").replace("[","").replace("C","").replace("°","").replace("]","").split(",")]
+                #         pre_formatted = [float(value) if value != 'None' else None for value in pre_formatted]
+                        
+                #         print("PREFORMATTED")
+                #         print(pre_formatted)
 
-                print("FORMATTED RESULT")
-                try:
-
-                        pre_formatted = [float(x.strip()) for x in extraction_response["message"]["content"].replace("%","").replace("[","").replace("]","").split(",")]
-                        print("PREFORMATTED")
-                        print(pre_formatted)
-
-                        print("Length of formatted response", len(formatted_results))
-                        print("Number of days", no_of_days)
-                        if len(formatted_results) != no_of_days+1:
-                            print("Length of list is not equal to no_of_days")
-                            formatted_results = []
+                #         print("Length of formatted response", len(pre_formatted))
+                #         print("Number of days", no_of_days)
+                #         if len(pre_formatted) != no_of_days+1:
+                #             print(f"Length of list is not equal to {no_of_days}")
+                #             pre_formatted = []
                         
 
 
-                except Exception as e:
-                        print("Could not convert to list. Error is ", e)
-                        formatted_results = []
-
-
-                param_values[param.split("/",2)[0]] = [x.replace("%","") for x in formatted_results]
-
+                # except Exception as e:
+                #         print("Could not convert to list. Error is ", e)
+                #         pre_formatted = []
+                print("FOUND VALUES")
+                print(param_values)
+                param_values[param.split("/",2)[0].replace("temp","temperature")] =  extraction
+                print("__________________")
 # Extract compounds and amounts
         compound_extraction = placeholder_compound_extraction_prompt.replace("%output", output)
         compound_extraction_response = client.chat(model=mdl, messages=[
