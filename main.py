@@ -4,12 +4,14 @@ from funcs.db_funcs import make_md5_hash
 from funcs.db_funcs import make_run_db_entry
 from funcs.db_funcs import make_output_db_entry
 
+# Get the directory of the script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
 # Set up the client
 client = Client(host='http://192.168.1.11:11434')
 
-
 # Read prompt from prompts folder
-prompt = open("prompts/liver_organoids_1.txt", "r").read()
+prompt = open(script_dir + "prompts/liver_organoids_1.txt", "r").read()
 
 # Set model to use in generating response
 model = 'llama3.1:8b' # 8b model
