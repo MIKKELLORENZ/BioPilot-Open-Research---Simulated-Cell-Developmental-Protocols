@@ -32,7 +32,7 @@ no_protocols_per_model = 10000
 models = ['llama3.1:8b', 'gemma2', 'mistral-nemo']
 
 # List which environmental parameters to extract
-env_parameters = ["temp", "ph", "dissolved_oxygen", "rpm"]
+env_parameters = ["temp", "ph", "dissolved_oxygen", "rpm","compounds"]
 
 # Format prompt
 prompt = prompt.replace("%no_of_days", str(no_of_days))
@@ -72,17 +72,16 @@ for mdl in models:
         param_values = {}
 
 # Perform value extraction
-        formatted_output = output.replace("C","").replace("°","").replace("]","").replace("[","").replace("%","")
+        formatted_output = output.replace("°","").replace("]","").replace("[","").replace("%","").replace("(","").replace(")","")
         for param in env_parameters:
                 print("\n Parameter is:", param)
                 extraction = re_extraction(param,formatted_output)
 
-                print("FOUND VALUES")
-                print(param_values)
                 param_values[param.split("/",2)[0].replace("temp","temperature")] =  extraction
-                print("__________________")
+        
+        print("Extracted values are:", param_values)
 # Extract compounds and amounts
-        compound_extraction = placeholder_compound_extraction_prompt.replace("%output", output)
+        compound_extraction = placeholder_compound_extraction_prompt.replace("%output", str(param_values["compounds"]))
         compound_extraction_response = client.chat(model=mdl, messages=[
         {'role': 'user',
         'content': f'{compound_extraction}'}])
