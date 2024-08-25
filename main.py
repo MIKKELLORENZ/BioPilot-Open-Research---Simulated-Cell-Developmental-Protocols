@@ -76,39 +76,7 @@ for mdl in models:
         for param in env_parameters:
                 print("\n Parameter is:", param)
                 extraction = re_extraction(param,formatted_output)
-                
-                # extraction_prompt = placeholder_param_extraction_prompt.replace("%param", param)
-                # extraction_prompt = extraction_prompt.replace("%val_example", value_examples[param])
-                # extraction_prompt = extraction_prompt.replace("%output", output)
-                # extraction_prompt = extraction_prompt.replace("%no_of_days", str(no_of_days))
-                # extraction_prompt = extraction_prompt.replace("%no_of_days_plus_1", str(no_of_days+1))
 
-                # extraction_response = client.chat(model=mdl, messages=[
-                # {'role': 'user',
-                # 'content': f'{extraction_prompt}'}])
-                
-                # print("Extraciton response is:", extraction_response["message"]["content"])
-                # print("FORMATTED RESULT")
-                # try:
-                        
-
-                #         pre_formatted = [x.strip() for x in extraction_response["message"]["content"].replace("%","").replace("[","").replace("C","").replace("°","").replace("]","").split(",")]
-                #         pre_formatted = [float(value) if value != 'None' else None for value in pre_formatted]
-                        
-                #         print("PREFORMATTED")
-                #         print(pre_formatted)
-
-                #         print("Length of formatted response", len(pre_formatted))
-                #         print("Number of days", no_of_days)
-                #         if len(pre_formatted) != no_of_days+1:
-                #             print(f"Length of list is not equal to {no_of_days}")
-                #             pre_formatted = []
-                        
-
-
-                # except Exception as e:
-                #         print("Could not convert to list. Error is ", e)
-                #         pre_formatted = []
                 print("FOUND VALUES")
                 print(param_values)
                 param_values[param.split("/",2)[0].replace("temp","temperature")] =  extraction

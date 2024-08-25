@@ -1,20 +1,5 @@
 import re
 
-value_examples = {"paramerature": "37.0, 37.0, 37.0, 37.5",
-                  "ph": "7.0, 7.0, 7.0, 7.5",
-                  "dissolved_oxygen": "5.0, 5.0, 15.0, 5.5",
-                  "rpm/impeller speed": "0, 20, 0, 150"}
-
-# placeholder_param_extraction_prompt = """Given the following table of %no_of_days, extract the values from the %param column
-#  and return them as a list of floating-point numbers: \n\n%output\n\nYour task is to extract the %param values and return
-#    them as a list of numbers. For example, your result should be in the format: %val_example.
-#      DO NOT PROVDE ANY ADDITIONAL INFORMATION, Just give me the list of %param for each of the rows in the table. 
-#      IMPORTANT: Look twice and carefully. ONLY if a particular row has no value for %param should you write 'None' in that SPECIFIC element positions. Think deeply and DO NOT OVER DO it. The list must of course add up to the length of %no_of_days_plus_1 (because we are inclduing including day 0). What is the precise list of %param?"""
-
-placeholder_param_extraction_prompt = """Given the following table of %no_of_days, extract the values from the %param column and return them as a list of floating-point numbers. Your task is to extract the %param values and return them as a list of numbers. For example, your result should be in the format: %val_example. 
-
-DO NOT PROVIDE ANY ADDITIONAL INFORMATION. Just give me the list of %param for each of the rows in the table. IMPORTANT: Carefully verify each row. The final list must match the length of %no_of_days_plus_1 (because we are including day 0). What is the precise list of %param?: \n\n%output\n\n"""
-
 placeholder_compound_extraction_prompt  = """Given the following table, extract the compound(s) used for each day along with their concentrations and units. Return the output as a dictionary of dictionaries, where the keys are the day numbers and the values are dictionaries containing compound names as keys and their corresponding concentrations and units as values. Use the following format:
 {
     0: {"Compound 1": {100: "ng/mL"}, "Compound 2": {50: "ng/mL"}},
@@ -60,7 +45,7 @@ def re_extraction(param,text):
  
         columns = line.split('|')
         if len(columns) > 2:
-          
+
           column_value = columns[param_index].replace("RPM","").replace("rpm","").strip()
         # print("COLUM VALUE FOUDN IS:", column_value)
           if type(column_value) == None:
